@@ -1,0 +1,26 @@
+HOSTNAME=ip-172-31-24-231
+IP=172.31.24.231
+
+# Create a keyring for your cluster and generate a monitor secret keyI
+sudo -u ceph ceph-authtool --create-keyring /tmp/ceph.mon.keyring --gen-key -n mon. --cap mon 'allow *'
+
+# Generate an administrator keyring
+sudo ceph-authtool --create-keyring /etc/ceph/ceph.client.admin.keyring --gen-key -n client.admin --cap mon 'allow *' --cap osd 'allow *' --cap mds 'allow *' --cap mgr 'allow *'
+sudo chown ceph:ceph /etc/ceph/ceph.client.admin.keyring
+
+# Generate a bootstrap-osd keyring
+sudo -u ceph ceph-authtool --create-keyring /var/lib/ceph/bootstrap-osd/ceph.keyring --gen-key -n client.bootstrap-osd --cap mon 'profile bootstrap-osd'
+
+# Add the generated keys to the ceph.mon.keyring
+sudo -u ceph ceph-authtool /tmp/ceph.mon.keyring --import-keyring /etc/ceph/ceph.client.admin.keyring
+sudo -u ceph ceph-authtool /tmp/ceph.mon.keyring --import-keyring /var/lib/ceph/bootstrap-osd/ceph.keyring
+
+# Generate a monitor map
+sudo -u ceph monmaptool --create --add $HOSTNAME $IP --fsid 1104ba63-a60f-4da2-bef2-7b3d9e480663 /tmp/monmap
+
+# Create a default data directory
+sudo mkdir /var/lib/ceph/mon/ceph-$HOSTNAME
+sudo chown ceph:ceph /var/lib/ceph/mon/ceph-$HOSTNAME
+
+# Populate the monitor daemon(s) with the monitor map and keyring
+sudo -u ceph ceph-mon --cluster ceph --mkfs -i $HOSTNAME --monmap /tmp/monmap --keyring /tmp/ceph.mon.keyring

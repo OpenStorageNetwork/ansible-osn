@@ -1,0 +1,158 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "8 node Ceph storage cluster"
+Resources:
+  Monitor01:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: "ami-3ecc8f46"
+      InstanceType: "t2.micro"
+      KeyName: "AWS Key Pair 1"
+      SecurityGroups:
+        - "Ceph Storage Cluster"
+        - "GCSv4"
+      Tags:
+        - Key: "Name"
+          Value: "Monitor01"
+      BlockDeviceMappings:
+        - DeviceName: "/dev/sda1"
+          Ebs:
+            DeleteOnTermination: "true"
+
+  Monitor02:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: "ami-3ecc8f46"
+      InstanceType: "t2.micro"
+      KeyName: "AWS Key Pair 1"
+      SecurityGroups:
+        - "Ceph Storage Cluster"
+        - "GCSv4"
+      Tags:
+        - Key: "Name"
+          Value: "Monitor02"
+      BlockDeviceMappings:
+        - DeviceName: "/dev/sda1"
+          Ebs:
+            DeleteOnTermination: "true"
+
+  Monitor03:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: "ami-3ecc8f46"
+      InstanceType: "t2.micro"
+      KeyName: "AWS Key Pair 1"
+      SecurityGroups:
+        - "Ceph Storage Cluster"
+        - "GCSv4"
+      Tags:
+        - Key: "Name"
+          Value: "Monitor03"
+      BlockDeviceMappings:
+        - DeviceName: "/dev/sda1"
+          Ebs:
+            DeleteOnTermination: "true"
+
+  Storage01:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: "ami-3ecc8f46"
+      InstanceType: "t2.micro"
+      KeyName: "AWS Key Pair 1"
+      SecurityGroups:
+        - "Ceph Storage Cluster"
+        - "GCSv4"
+      Tags:
+        - Key: "Name"
+          Value: "Storage01"
+      BlockDeviceMappings:
+        - DeviceName: "/dev/sda1"
+          Ebs:
+            DeleteOnTermination: "true"
+        - DeviceName: "/dev/sdb"
+          Ebs:
+            DeleteOnTermination: "true"
+            VolumeSize: "4"
+
+  Storage02:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: "ami-3ecc8f46"
+      InstanceType: "t2.micro"
+      KeyName: "AWS Key Pair 1"
+      SecurityGroups:
+        - "Ceph Storage Cluster"
+        - "GCSv4"
+      Tags:
+        - Key: "Name"
+          Value: "Storage02"
+      BlockDeviceMappings:
+        - DeviceName: "/dev/sda1"
+          Ebs:
+            DeleteOnTermination: "true"
+        - DeviceName: "/dev/sdb"
+          Ebs:
+            DeleteOnTermination: "true"
+            VolumeSize: "4"
+
+  Storage03:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: "ami-3ecc8f46"
+      InstanceType: "t2.micro"
+      KeyName: "AWS Key Pair 1"
+      SecurityGroups:
+        - "Ceph Storage Cluster"
+        - "GCSv4"
+      Tags:
+        - Key: "Name"
+          Value: "Storage03"
+      BlockDeviceMappings:
+        - DeviceName: "/dev/sda1"
+          Ebs:
+            DeleteOnTermination: "true"
+        - DeviceName: "/dev/sdb"
+          Ebs:
+            DeleteOnTermination: "true"
+            VolumeSize: "4"
+
+  Storage04:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: "ami-3ecc8f46"
+      InstanceType: "t2.micro"
+      KeyName: "AWS Key Pair 1"
+      SecurityGroups:
+        - "Ceph Storage Cluster"
+        - "GCSv4"
+      Tags:
+        - Key: "Name"
+          Value: "Storage04"
+      BlockDeviceMappings:
+       - DeviceName: "/dev/sda1"
+         Ebs:
+           DeleteOnTermination: "true"
+       - DeviceName: "/dev/sdb"
+         Ebs:
+           DeleteOnTermination: "true"
+           VolumeSize: "4"
+
+  Storage05:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: "ami-3ecc8f46"
+      InstanceType: "t2.micro"
+      KeyName: "AWS Key Pair 1"
+      SecurityGroups:
+        - "Ceph Storage Cluster"
+        - "GCSv4"
+      Tags:
+        - Key: "Name"
+          Value: "Storage05"
+      BlockDeviceMappings:
+        - DeviceName: "/dev/sda1"
+          Ebs:
+            DeleteOnTermination: "true"
+        - DeviceName: "/dev/sdb"
+          Ebs:
+            DeleteOnTermination: "true"
+            VolumeSize: "4"

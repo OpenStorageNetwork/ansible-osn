@@ -1,0 +1,46 @@
+---
+# tasks file for ceph-rgw
+- name: install Ceph RadosGW packages
+  become: yes
+  become_flags: --login
+  yum:
+    name: ceph-radosgw
+    state: present
+
+- name: generate radosgw keyring
+  become: yes
+  include: gen_radosgw_keyring.yml
+  run_once: true
+
+- name: install radosgw keyring
+  become: yes
+  include: install_radosgw_keyring.yml
+
+- name: Populate ceph.conf with the radosgw
+  become: yes
+  blockinfile:
+    path: /etc/ceph/ceph.conf
+    block: |
+      [client.radosgw.gateway]
+      host = {{ inventory_hostname }}
+      keyring = {{ radosgw_key_path }}
+      rgw frontends = civetweb port=3000
+    marker: "# {mark} ANSIBLE MANAGED BLOCK radosgw"
+
+- name: Create the radosgw state directory
+  become: yes
+  file:
+    path: "{{item}}"
+    state: directory
+    owner: ceph
+    group: ceph
+    mode:  700
+  with_items:
+    - /var/lib/ceph/radosgw/
+    - /var/lib/ceph/radosgw/ceph-radosgw.gateway
+
+- name: Launch the radosgw service
+  become: yes
+  service:
+    name: ceph-radosgw@radosgw.gateway
+    state: started

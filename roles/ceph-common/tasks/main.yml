@@ -1,0 +1,28 @@
+---
+- name: install Ceph packages
+  become: yes
+  become_flags: --login
+  include: install_ceph_packages.yml
+
+- name: configure Ceph.conf
+  become: yes
+  include: setup_ceph_conf.yml
+
+- name: generate admin keyring
+  become: yes
+  include: gen_admin_keyring.yml
+  run_once: true
+
+- name: install admin keyring
+  become: yes
+  include: install_admin_keyring.yml
+
+- name: generate osd bootstrap keyring
+  become: yes
+  include: gen_osd_bootstrap_keyring.yml
+  run_once: true
+
+- name: generate monitor keyring
+  become: yes
+  include: gen_mon_keyring.yml
+  run_once: true

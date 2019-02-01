@@ -1,0 +1,10 @@
+---
+- name: Generate the monitor map
+  become: yes
+  include: gen_monitor_map.yml
+
+- name: start ceph-mon@{{ ceph_monitor_hosts.index(inventory_hostname) }}
+  become: yes
+  systemd:
+    name: ceph-mon@{{ ceph_monitor_hosts.index(inventory_hostname) }}
+    state: started

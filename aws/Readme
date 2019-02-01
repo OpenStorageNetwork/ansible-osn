@@ -1,0 +1,9 @@
+pip install --user awscli
+
+aws cloudformation describe-stacks
+
+aws cloudformation create-stack --stack-name TestStack --template-body file://template.yml
+
+aws cloudformation delete-stack --stack-name TestStack
+
+aws ec2 describe-instances --query "Reservations[*].Instances[*].[Tags[?Key=='Name'].Value[],PublicIpAddress]"  --filters "Name=tag-key,Values=aws:cloudformation:stack-name" "Name=tag-value,Values=TestStack"

@@ -1,0 +1,23 @@
+---
+- hosts: ceph
+  roles:
+  - ceph-common
+
+- hosts: ~.*-mon.*:&ceph
+  roles:
+  - ceph-mon
+
+- hosts: ~.*-data.*:&ceph
+  roles:
+  - ceph-common
+  - ceph-osd
+
+#
+# kludge to provide DMZ access to GCS for NWU cluster
+#
+
+- hosts: ~jhu-mon[2:3]
+  roles:
+  - ceph-rgw
+  - globus-gcs
+  - user-accts

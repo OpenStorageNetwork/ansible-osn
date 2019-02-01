@@ -1,0 +1,34 @@
+---
+- name: install OSD bootstrap keyring
+  become: yes
+  include: install_osd_bootstrap_keyring.yml
+
+- name: activate osd(s)
+  command: ceph-volume lvm create --bluestore --data "{{ item }}"
+  become: yes
+  with_items:
+    - "{{ ceph_osd_devices|unique }}"
+  changed_when: false
+  register: activate_osd_disk
+  failed_when: activate_osd_disk.rc != 0 and activate_osd_disk.rc != 1
+
+- name: get osd id
+  shell: |
+    ls /var/lib/ceph/osd/ | sed 's/.*-//'
+  become: yes
+  changed_when: false
+  failed_when: false
+  check_mode: no
+  register: osd_id
+  until: osd_id.stdout_lines|length == ceph_osd_devices|unique|length
+  retries: 10
+
+- name: ensure osd daemons are started
+  become: yes
+  service:
+    name: ceph-osd@{{ item }}
+    state: started
+    enabled: true
+  with_items: "{{ (osd_id|default({})).stdout_lines|default([]) }}"
+  changed_when: false
+

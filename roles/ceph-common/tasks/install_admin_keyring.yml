@@ -1,0 +1,17 @@
+---
+- name: Check for local copy of administrator keyring
+  local_action: stat path={{ playbook_dir }}/state/ceph.client.admin.keyring
+  register: local_key
+  become: no
+
+- name: Fail if local copy does not exist
+  fail: msg="ceph.client.admin.keyring keyring is expected to exist!"
+  when: local_key.stat.exists == False
+
+- name: Copy over administrator keyring
+  copy:
+    src: "{{ playbook_dir }}/state/ceph.client.admin.keyring"
+    dest: "{{ admin_key_path }}"
+    owner: ceph
+    group: ceph
+    mode: 0600

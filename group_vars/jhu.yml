@@ -1,0 +1,10 @@
+---
+
+# This keeps ansible from complaining if no other variables are defined
+dummy:
+
+#
+# Kludge for JHU/NWU monitor swap
+#
+ceph_monitor_hosts: "{{ ['jhu-mon1', 'jhu-mon2', 'nwu-mon3'] }}"
+ceph_monitor_addrs: "{{ ['172.16.1.11', '172.16.1.12', '172.16.2.13'] }}"

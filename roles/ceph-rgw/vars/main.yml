@@ -1,0 +1,4 @@
+---
+# vars file for ceph-rgw
+radosgw_key_path: /etc/ceph/ceph.client.radosgw.keyring
+admin_key_path: /etc/ceph/ceph.client.admin.keyring

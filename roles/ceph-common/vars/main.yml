@@ -1,0 +1,9 @@
+---
+# vars file for roles/ceph-common
+admin_key_path: /etc/ceph/ceph.client.admin.keyring
+osd_bootstrap_key_path: /tmp/bootstrap-osd-ceph.keyring
+mon_key_path: /tmp/ceph.mon.keyring
+
+#{{ ceph_monitor_hosts | mandatory }}
+#{{ ceph_monitor_addrs | mandatory }}
+#{{ ceph_network | mandatory }}

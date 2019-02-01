@@ -1,0 +1,27 @@
+---
+- name: install Ceph RPM repository key
+  rpm_key:
+    key: https://download.ceph.com/keys/release.asc
+
+- name: install Ceph repository
+  yum:
+    name: https://download.ceph.com/rpm-mimic/el7/noarch/ceph-release-1-1.el7.noarch.rpm
+    state: present
+
+- name: install the EPEL repository
+  yum:
+    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    state: present
+
+- name: install prerequisite packages
+  yum:
+    name: ['snappy', 'leveldb', 'gdisk', 'python-argparse', 'gperftools-libs']
+    state: present
+
+- name: install Ceph packages
+  yum:
+    name: ceph
+    state: present
+    #disablerepo: osn-custom,rhel7-server,rhel7-updates
+    #disablerepo: '*'
+    #enablerepo: Ceph,epel,rhel-x86_64-server-extras-7

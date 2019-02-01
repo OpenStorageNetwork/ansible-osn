@@ -1,0 +1,26 @@
+---
+# tasks file for user-accts
+
+- name: Add local user accounts
+  become: yes
+  user:
+    name: "{{ item }}"
+    password_lock: yes
+  with_items: "{{ end_users }}"
+
+- name: Add user radosgw accounts
+  become: yes
+  shell: "radosgw-admin user create --uid={{ item }} --display-name={{ item }}"
+  with_items: "{{ end_users }}"
+  register: output
+  failed_when: output.rc != 0 and output.rc != 17
+
+- name: Copy over grid mapfile
+  become: yes
+  copy:
+    src: "{{ playbook_dir }}/state/grid-mapfile"
+    dest: /etc/grid-security/grid-mapfile
+    owner: root
+    group: root
+    mode: 0600
+

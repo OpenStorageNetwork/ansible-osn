@@ -1,0 +1,28 @@
+---
+- name: Check for local copy of administrator keyring
+  local_action: stat path={{ playbook_dir }}/state/ceph.client.admin.keyring
+  register: local_key
+  become: no
+
+- name: Generate an administrator keyring
+  shell: "ceph-authtool --create-keyring {{ admin_key_path }} --gen-key -n client.admin --cap mon 'allow *' --cap osd 'allow *' --cap mds 'allow *' --cap mgr 'allow *'"
+  args:
+    creates: "{{ admin_key_path }}"
+  when: local_key.stat.exists == False
+
+- name: Set ownership on administrator keyring
+  file: 
+    path: "{{ admin_key_path }}"
+    owner: ceph
+    group: ceph
+    mode: 0600
+  when: local_key.stat.exists == False
+
+- name: Save the new administrator keyring
+  become_user: ceph
+  fetch:
+    src: "{{ admin_key_path }}"
+    dest: "{{ playbook_dir }}/state/"
+    flat: yes
+  when: local_key.stat.exists == False
+

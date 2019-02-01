@@ -1,0 +1,17 @@
+[ceph:children]
+jhu
+nwu
+
+#
+# Kludge for JHU/NWU monitor swap
+#
+
+[jhu]
+jhu-mon[1:2]
+nwu-mon3
+jhu-data[01:05]
+
+[nwu]
+nwu-mon[1:2]
+jhu-mon3
+nwu-data[01:05]

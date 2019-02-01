@@ -1,0 +1,70 @@
+---
+
+# This keeps ansible from complaining if no other variables are defined
+dummy:
+
+ceph_network: 172.16.0.0/13
+
+#
+# UUID associated with Ceph storage cluster
+#
+ceph_fsid: 1104ba63-a60f-4da2-bef2-7b3d9e480663
+
+#
+# List of osd data devices on storage devices
+#
+ceph_osd_devices:
+  - /dev/sda
+  - /dev/sdb
+  - /dev/sdc
+  - /dev/sdd
+  - /dev/sde
+  - /dev/sdf
+  - /dev/sdg
+  - /dev/sdh
+  - /dev/sdi
+  - /dev/sdj
+  - /dev/sdk
+  - /dev/sdl
+  - /dev/sdm
+  - /dev/sdn
+  - /dev/sdo
+  - /dev/sdp
+  - /dev/sdq
+  - /dev/sdr
+  - /dev/sds
+  - /dev/sdt
+  - /dev/sdu
+  - /dev/sdv
+  - /dev/sdw
+  - /dev/sdx
+  - /dev/sdy
+  - /dev/sdz
+  - /dev/sdaa
+  - /dev/sdab
+  - /dev/sdac
+  - /dev/sdad
+  - /dev/sdae
+  - /dev/sdaf
+  - /dev/sdag
+  - /dev/sdah
+  - /dev/sdai
+  - /dev/sdaj
+
+#
+# List users that can store data in Ceph
+#
+end_users:
+  - jasonalt
+  - bkm
+
+#
+# Globus ID user account name for creating the endpoint
+#
+globus_id_user: XXX
+
+#
+# Globus ID password associated with globus_id_user
+#
+globus_id_pass: XXX
+

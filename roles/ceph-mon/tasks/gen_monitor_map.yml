@@ -1,0 +1,57 @@
+---
+- name: Check for local copy of monitor keyring
+  local_action: stat path={{ playbook_dir }}/state/ceph.mon.keyring
+  register: local_mon_key
+  become: no
+
+- name: Fail if monitor keyring does not exist locally
+  fail: msg="monitor keyring is expected to exist!"
+  when: local_mon_key.stat.exists == False
+
+- name: Check for remote copy of monitor keyring
+  stat:
+    path: /var/lib/ceph/mon/ceph-{{ ceph_monitor_hosts.index(inventory_hostname) }}/keyring
+  register: remote_mon_key
+
+- name: Copy over monitor keyring
+  copy:
+    src:  "{{ playbook_dir }}/state/ceph.mon.keyring"
+    dest: "{{ mon_key_path }}"
+    owner: ceph
+    group: ceph
+    mode: 0600
+  when: remote_mon_key.stat.exists == False
+
+- name: Generate a monitor map
+  become_user: ceph
+  shell: "monmaptool --create --clobber --fsid {{ ceph_fsid }} {{ mon_map_path }}"
+  when: remote_mon_key.stat.exists == False
+
+- name: Insert monitors into map
+  become_user: ceph
+  shell: "monmaptool --add {{ item|int }} {{ ceph_monitor_addrs[item|int] }} {{ mon_map_path }}"
+  with_sequence: start=0 end="{{ ceph_monitor_addrs|length - 1 }}"
+  when: remote_mon_key.stat.exists == False
+
+- name: Create a default data directory
+  file:
+    path: /var/lib/ceph/mon/ceph-{{ ceph_monitor_hosts.index(inventory_hostname) }}
+    state: directory
+    owner: ceph
+    group: ceph
+
+- name: Populate the monitor daemon(s) with the monitor map and keyring
+  become_user: ceph
+  shell: ceph-mon --cluster ceph --mkfs -i {{ ceph_monitor_hosts.index(inventory_hostname) }} --monmap "{{ mon_map_path }}" --keyring /tmp/ceph.mon.keyring
+  args:
+    creates: /var/lib/ceph/mon/ceph-{{ ceph_monitor_hosts.index(inventory_hostname) }}/store.db
+
+- name: Remove the temporary monitor map file
+  file:
+    path: "{{ mon_map_path }}"
+    state: absent
+
+- name: Remove the temporary monitor keyring
+  file:
+    path: "{{ mon_key_path }}"
+    state: absent

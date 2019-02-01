@@ -1,0 +1,82 @@
+---
+- name: Check for local copy of monitor keyring
+  local_action: stat path={{ playbook_dir }}/state/ceph.mon.keyring
+  register: local_mon_key
+  become: no
+
+- name: Create a monitor keyring
+  become_user: ceph
+  shell: "ceph-authtool --create-keyring {{ mon_key_path }} --gen-key -n mon. --cap mon 'allow *'"
+  args:
+    creates: "{{ mon_key_path }}"
+  when: local_mon_key.stat.exists == False
+
+####################################################################
+#
+# Add OSD bootstrap keyring to the monitor keyring
+#
+####################################################################
+- name: Check for local copy of bootstrap osd keyring
+  local_action: stat path={{ playbook_dir }}/state/bootstrap-osd-ceph.keyring
+  register: local_bootstrap_osd_key
+  become: no
+
+- name: Fail if bootstrap osd keyring does not exist locally
+  fail: msg="bootstrap-osd keyring is expected to exist!"
+  when: local_bootstrap_osd_key.stat.exists == False
+
+- name: Copy over bootstrap-osd keyring
+  copy:
+    src: "{{ playbook_dir }}/state/bootstrap-osd-ceph.keyring"
+    dest: "{{ osd_bootstrap_key_path }}"
+    owner: ceph
+    group: ceph
+    mode: 0600
+  when: local_mon_key.stat.exists == False
+
+- name: Add the bootstrap osd keyring to ceph.mon.keyring
+  become_user: ceph
+  shell: "ceph-authtool {{ mon_key_path }} --import-keyring {{ osd_bootstrap_key_path }}"
+  when: local_mon_key.stat.exists == False
+
+- name: Remove remote copy of bootstrap osd keyring
+  file:
+    path: "{{ osd_bootstrap_key_path }}"
+    state: absent
+  when: local_mon_key.stat.exists == False
+
+####################################################################
+#
+# Add admin keyring to the monitor keyring
+#
+####################################################################
+- name: Check for remote copy of admin keyring
+  stat: path="{{ admin_key_path }}"
+  register: remote_admin_key
+
+- name: Fail if admin keyring does not exist remotely
+  fail: msg="admin keyring is expected to exist!"
+  when: remote_admin_key.stat.exists == False
+
+- name: Add the administrator keyring to ceph.mon.keyring
+  become_user: ceph
+  shell: "ceph-authtool {{ mon_key_path }} --import-keyring {{ admin_key_path }}"
+  when: local_mon_key.stat.exists == False
+
+- name: Save the new monitor keyring
+  become_user: ceph
+  fetch:
+    src: "{{ mon_key_path }}"
+    dest: "{{ playbook_dir }}/state/"
+    flat: yes
+  when: local_mon_key.stat.exists == False
+
+####################################################################
+#
+# Remove remote copy of the monitor keyring
+#
+####################################################################
+- name: Remove remote copy of monitor keyring
+  file:
+    path: "{{ mon_key_path }}"
+    state: absent

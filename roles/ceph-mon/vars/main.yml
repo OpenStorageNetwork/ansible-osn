@@ -1,0 +1,8 @@
+---
+
+#{{ ceph_monitor_hosts | manditory }}
+#{{ ceph_monitor_addrs | manditory }}
+#{{ ceph_fsid | manditory }}
+
+mon_key_path: /tmp/ceph.mon.keyring
+mon_map_path: /tmp/monmap

@@ -1,0 +1,30 @@
+---
+- name: copy in ceph.conf
+  copy:
+    src: files/ceph.conf
+    dest: /etc/ceph/ceph.conf
+    owner: ceph
+    group: ceph
+    mode: 0600
+
+- name: set Ceph cluster ID
+  replace:
+    path: /etc/ceph/ceph.conf
+    regexp: _FSID_
+    replace: "{{ ceph_fsid }}"
+
+- name: set the ceph network
+  replace:
+    path: /etc/ceph/ceph.conf
+    regexp: _CEPH_NETWORK_
+    replace: "{{ ceph_network }}"
+
+- name: Populate ceph.conf with monitor(s)
+  blockinfile:
+    path: /etc/ceph/ceph.conf
+    block: |
+      [mon.{{ item }}]
+      host = {{ ceph_monitor_hosts[item|int] }}
+      mon addr = {{ ceph_monitor_addrs[item|int] }}
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item }}"
+  with_sequence: start=0 end="{{ ceph_monitor_hosts|length - 1 }}"

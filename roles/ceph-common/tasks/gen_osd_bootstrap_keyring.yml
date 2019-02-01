@@ -1,0 +1,25 @@
+---
+- name: Check for local copy of bootstrap osd keyring
+  local_action: stat path={{ playbook_dir }}/state/bootstrap-osd-ceph.keyring
+  register: local_key
+  become: no
+
+- name: Generate a bootstrap-osd keyring
+  become_user: ceph
+  shell: "ceph-authtool --create-keyring {{ osd_bootstrap_key_path }} --gen-key -n client.bootstrap-osd --cap mon 'profile bootstrap-osd'"
+  args:
+    creates: "{{ osd_bootstrap_key_path }}"
+  when: local_key.stat.exists == False
+
+- name: Save the new bootstrap-osd keyring
+  become_user: ceph
+  fetch:
+    src: "{{ osd_bootstrap_key_path }}"
+    dest: "{{ playbook_dir }}/state/"
+    flat: yes
+  when: local_key.stat.exists == False
+
+- name: Remove the remote copy of bootstrap-osd keyring
+  file:
+    path: "{{ osd_bootstrap_key_path }}"
+    state: absent

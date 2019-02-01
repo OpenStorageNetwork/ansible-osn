@@ -1,0 +1,55 @@
+if [ `hostname` == "citadel" ]
+then
+	for h in jhu-mon1   \
+	         jhu-mon2   \
+	         jhu-mon3   \
+	         jhu-data01 \
+	         jhu-data02 \
+	         jhu-data03 \
+	         jhu-data04 \
+	         jhu-data05 \
+	         nwu-mon1   \
+	         nwu-mon2   \
+	         nwu-mon3   \
+	         nwu-data01 \
+	         nwu-data02 \
+	         nwu-data03 \
+	         nwu-data04 \
+	         nwu-data05
+	do
+		scp -i ~/.ssh/osn-ansible reset $h:.
+		ssh -i ~/.ssh/osn-ansible $h sudo --login bash /home/ansible/reset
+	done
+	return 0
+fi
+
+    yum remove -y ceph-common \
+                       ceph-mon \
+                       ceph-release \
+                       epel-release \
+                       ceph-selinux \
+                       ceph-mds \
+                       ceph-base \
+                       ceph-osd \
+                       ceph-radosgw \
+                       libcephfs2 \
+                       python-cephfs \
+                       ceph-mgr \
+                       librados2 \
+                       globus* \
+                       ceph
+
+
+# Remove ceph rpm key
+rpm -e --allmatches gpg-pubkey-460f3994-55f88609
+
+lvscan | grep ceph | awk '{print $2}' | sed "s,',,g"| while read f; do lvremove -y $f; done
+vgscan | grep ceph | awk '{print $4}' | sed 's,",,g' | while read f; do vgremove -y $f; done
+
+umount /var/lib/ceph/osd/*
+
+rm -rf /var/lib/ceph/ /var/run/ceph /var/log/ceph
+
+userdel jasonalt
+userdel bkm
+userdel globus-ceph

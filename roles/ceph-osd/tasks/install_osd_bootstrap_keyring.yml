@@ -1,0 +1,17 @@
+---
+- name: Check for local copy of bootstrap osd keyring
+  local_action: stat path={{ playbook_dir }}/state/bootstrap-osd-ceph.keyring
+  register: local_bootstrap_osd_key
+  become: no
+
+- name: Fail if bootstrap OSD keyring does not exist locally
+  fail: msg="bootstrap OSD keyring is expected to exist!"
+  when: local_bootstrap_osd_key.stat.exists == False
+
+- name: Copy over bootstrap-osd keyring
+  copy:
+    src: "{{ playbook_dir }}/state/bootstrap-osd-ceph.keyring"
+    dest: /var/lib/ceph/bootstrap-osd/ceph.keyring
+    owner: ceph
+    group: ceph
+    mode: 0600
